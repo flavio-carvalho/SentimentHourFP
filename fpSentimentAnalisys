@@ -1,0 +1,252 @@
+library(arules)
+library("arulesViz")
+
+diretorio <- function()
+{ 
+prompt <- "Digite o diretório de trabalho: "
+  n <- readline(prompt)
+  return(n)
+}
+
+wd<-diretorio()
+setwd(wd)
+
+#Leitura das tabelas -> operações de redução e indexação de dados.
+
+b1 = read.table("a.imessage.csv", header = TRUE, quote="\"",sep = ",")
+b1.novo<-cbind.data.frame(as.Date(b1$date),as.numeric(b1$sentiment.comparative),as.numeric(b1$sentiment.negative_count),as.numeric(b1$sentiment.positive_count), as.numeric
+
+(b1$sentiment.score), as.numeric(substr(b1$time,start=1,stop=2)))
+
+colnames(b1.novo)<-c("date","sentiment.comparative","sentiment.negative_count","sentiment.positive_count","sentiment.score","hour")
+
+
+b2 = read.table("b.imessage.csv", header = TRUE, quote="\"",sep = ",")
+b2.novo<-cbind.data.frame(as.Date(b2$date),as.numeric(b2$sentiment.comparative),as.numeric(b2$sentiment.negative_count),as.numeric(b2$sentiment.positive_count), as.numeric
+
+(b2$sentiment.score), as.numeric(substr(b2$time,start=1,stop=2)))
+
+colnames(b2.novo)<-c("date","sentiment.comparative","sentiment.negative_count","sentiment.positive_count","sentiment.score","hour")
+
+
+b3 = read.table("a.dayone.csv", header = TRUE, quote="\"",sep = ",")
+b3.novo<-cbind.data.frame(as.Date(b3$date),as.numeric(b3$sentiment.comparative),as.numeric(b3$sentiment.negative_count),as.numeric(b3$sentiment.positive_count), as.numeric
+
+(b3$sentiment.score), as.numeric(substr(b3$time,start=1,stop=2)))
+
+colnames(b3.novo)<-c("date","sentiment.comparative","sentiment.negative_count","sentiment.positive_count","sentiment.score","hour")
+
+rm(b1)
+rm(b2)
+rm(b3)
+
+#Junção das tabelas
+dados <-rbind(b1.novo,b2.novo,b3.novo)
+
+
+
+#Binning de 7 faixas de horários
+for(i in 1:nrow(dados)){
+		 if ((dados$hour[i]  >= 05) & (dados$hour[i] < 9)) {
+		dados$hour[i] <-05
+} else if ((dados$hour[i]  >= 9) & (dados$hour[i] < 11)) {
+		dados$hour[i] <-9 
+} else if ((dados$hour[i]  >= 11) & (dados$hour[i] < 13)) {
+		dados$hour[i] <- 11 
+} else if ((dados$hour[i]  >= 13) & (dados$hour[i] < 17)) {
+		dados$hour[i] <- 13 
+} else if ((dados$hour[i]  >= 17) & (dados$hour[i] < 20)) {
+		dados$hour[i] <- 17 
+} else if ((dados$hour[i]  >= 20) & (dados$hour[i] < 23)) {
+		dados$hour[i] <- 20 
+
+} else
+		dados$hour[i] <- 00 
+
+}
+
+hist(dados$hour,main="Entradas por hora",col = (3), las=1, xlim=c(0,20),ylim = c(0,25000),xlab = "Tabela composta - 7 faixas")
+
+for(i in 1:nrow(dados)){
+		 if ((dados$hour[i]  == 0)) {
+		dados$hour[i] <-'Night'
+} else if ((dados$hour[i]  == 5)) {
+		dados$hour[i] <-'Early morning' 
+} else if ((dados$hour[i]  == 9)) {
+		dados$hour[i] <-'Mid-morning' 
+} else if ((dados$hour[i]  == 11)) {
+		dados$hour[i] <- 'Late morning' 
+} else if ((dados$hour[i]  == 13)) {
+		dados$hour[i] <- 'Afternoon'
+} else if ((dados$hour[i]  == 17)) {
+		dados$hour[i] <- 'Early evening' 
+} else if ((dados$hour[i]  == 20)) {
+		dados$hour[i] <- 'Late evening'  
+}
+}
+
+#Visualização dos valores nas tabelas
+summary(b1.novo$sentiment.positive_count)
+summary(b2.novo$sentiment.positive_count)
+summary(b3.novo$sentiment.positive_count)
+summary(b1.novo$sentiment.negative_count)
+summary(b2.novo$sentiment.negative_count)
+summary(b3.novo$sentiment.negative_count)
+
+summary(dados$sentiment.positive_count)
+summary(dados$sentiment.negative_count)
+
+
+
+#Binning para sentiment.positive_count, sentiment.negative_count e sentiment.score
+for(i in 1:nrow(dados)){
+		 if ((dados$sentiment.positive_count[i]  >= 3)) {
+		dados$sentiment.positive_count[i] <-3 
+
+}
+}
+
+for(i in 1:nrow(dados)){
+		 if ((dados$sentiment.negative_count[i]  >= 3) ) {
+		dados$sentiment.negative_count[i] <-3 
+ 
+}
+}
+
+
+ for(i in 1:nrow(dados)){
+		 if ((dados$sentiment.score[i]  < -3) ) {
+		dados$sentiment.score[i] <- 1
+} else if (dados$sentiment.score[i]  > 3){
+		dados$sentiment.score[i] <- 5 
+} else if ((dados$sentiment.score[i]  >= -3) & (dados$sentiment.score[i]  < 0)) {
+		dados$sentiment.score[i] <- 2 
+} else if ((dados$sentiment.score[i]  > 0) & (dados$sentiment.score[i] <= 3)) {
+		dados$sentiment.score[i] <- 4 
+} else
+		dados$sentiment.score[i] <- 3 
+
+}
+
+
+for(i in 1:nrow(dados)){
+		 if ((dados$sentiment.positive_count[i]  == 0) ) {
+		dados$sentiment.positive_count[i] <- 'zero'
+} else if ((dados$sentiment.positive_count[i]  == 1)) {
+		dados$sentiment.positive_count[i] <- 'low'
+} else if ((dados$sentiment.positive_count[i]  == 2) ) {
+		dados$sentiment.positive_count[i] <- 'medium' 
+} else
+		dados$sentiment.positive_count[i] <- 'high'  
+
+}
+
+for(i in 1:nrow(dados)){
+		 if ((dados$sentiment.negative_count[i]  == 0) ) {
+		dados$sentiment.negative_count[i] <- 'zero'
+} else if ((dados$sentiment.negative_count[i]  == 1)) {
+		dados$sentiment.negative_count[i] <- 'low'
+} else if ((dados$sentiment.negative_count[i]  == 2) ) {
+		dados$sentiment.negative_count[i] <- 'medium' 
+} else
+		dados$sentiment.negative_count[i] <- 'high'  
+
+}
+
+for(i in 1:nrow(dados)){
+		 if ((dados$sentiment.score[i]  == 1) ) {
+		dados$sentiment.score[i] <- '1- low-neg'
+} else if ((dados$sentiment.score[i]  == 2)) {
+		dados$sentiment.score[i] <- '2- neg'
+} else if ((dados$sentiment.score[i]  == 3) ) {
+		dados$sentiment.score[i] <- '3- zero' 
+} else if ((dados$sentiment.score[i]  == 4) ) {
+		dados$sentiment.score[i] <- '4- pos' 
+} else
+		dados$sentiment.score[i] <- '5- high-pos'  
+
+}
+
+sentiment<-subset(dados, select= -sentiment.comparative)
+s2<-sentiment
+
+
+#Vou inserir essa atribuição aqui só para manter o resto do código..
+eq<-s2
+zeq<-s2
+
+
+#Não lembro pq eu gerei o csv em disco...
+write.csv(zeq, file ="zeqt.csv")
+write.csv(eq, file ="eqt.csv")
+
+
+tr2<-read.transactions('zeqt.csv',format="basket",sep=",")
+itemFrequencyPlot(tr2, support = 0.01)
+#rules <- apriori(tr2, parameter= list(supp=0.5, conf=0.5))
+rules <- apriori(tr2, parameter= list(supp=0.01, conf=0.5))
+rules <- sort(rules, decreasing=TRUE,by="lift")
+inspect(rules)
+summary(rules)
+
+
+d2 <- dados
+
+for(i in 1:nrow(d2)){
+		 if ((d2$sentiment.positive_count[i]  == 0) ) {
+		d2$sentiment.positive_count[i] <- 'p=zero'
+} else if ((d2$sentiment.positive_count[i]  == 1)) {
+		d2$sentiment.positive_count[i] <- 'p=low'
+} else if ((d2$sentiment.positive_count[i]  == 2) ) {
+		d2$sentiment.positive_count[i] <- 'p=medium' 
+} else
+		d2$sentiment.positive_count[i] <- 'p=high'  
+
+}
+
+for(i in 1:nrow(d2)){
+		 if ((d2$sentiment.negative_count[i]  == 0) ) {
+		d2$sentiment.negative_count[i] <- 'n=zero'
+} else if ((d2$sentiment.negative_count[i]  == 1)) {
+		d2$sentiment.negative_count[i] <- 'n=low'
+} else if ((d2$sentiment.negative_count[i]  == 2) ) {
+		d2$sentiment.negative_count[i] <- 'n=medium' 
+} else
+		d2$sentiment.negative_count[i] <- 'n=high'  
+
+}
+
+for(i in 1:nrow(d2)){
+		 if ((d2$sentiment.score[i]  == 1) ) {
+		d2$sentiment.score[i] <- '1- low-neg'
+} else if ((d2$sentiment.score[i]  == 2)) {
+		d2$sentiment.score[i] <- '2- neg'
+} else if ((d2$sentiment.score[i]  == 3) ) {
+		d2$sentiment.score[i] <- '3- zero' 
+} else if ((d2$sentiment.score[i]  == 4) ) {
+		d2$sentiment.score[i] <- '4- pos' 
+} else
+		d2$sentiment.score[i] <- '5- high-pos'  
+
+}
+
+d2<-subset(d2, select= -sentiment.comparative)
+
+write.csv(d2, file ="d2.csv")
+tr5<-read.transactions('d2.csv',format="basket",sep=",")
+itemFrequencyPlot(tr5, support = 0.01)
+itemFrequencyPlot(tr5,support=.01, topN=20,type="absolute",col='green',ylim=c(0,70000), xlab='Proporção dos atributos'
+#
+
+table(sentiment$hour)
+#
+#    Afternoon Early evening Early morning  Late evening  Late morning   Mid-morning         Night 
+#        23817          9655          3279          9652         14217          8415          4278 
+# 
+
+rules2 <- apriori(tr5, parameter= list(supp=0.015, conf=.5))
+rules2 <- sort(rules2, decreasing=TRUE,by="lift")
+inspect(rules2)
+summary(rules)
+plot(rules2,control=list(lift),shading=lift)
+
