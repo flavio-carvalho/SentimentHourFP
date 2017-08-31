@@ -188,11 +188,6 @@ itemFrequencyPlot(tr5, support = 0.01)
 itemFrequencyPlot(tr5,support=.01, topN=20,type="absolute",col='green',ylim=c(0,70000), xlab='Proporção dos atributos'
 #
 
-table(sentiment$hour)
-#
-#    Afternoon Early evening Early morning  Late evening  Late morning   Mid-morning         Night 
-#        23817          9655          3279          9652         14217          8415          4278 
-# 
 
 # Geração de regras com Apriori
 rules2 <- apriori(tr5, parameter= list(supp=0.01, conf=.5))
