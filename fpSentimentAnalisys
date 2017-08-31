@@ -86,12 +86,6 @@ for(i in 1:nrow(dados)){
 }
 
 #Visualização dos valores nas tabelas
-summary(b1.novo$sentiment.positive_count)
-summary(b2.novo$sentiment.positive_count)
-summary(b3.novo$sentiment.positive_count)
-summary(b1.novo$sentiment.negative_count)
-summary(b2.novo$sentiment.negative_count)
-summary(b3.novo$sentiment.negative_count)
 
 summary(dados$sentiment.positive_count)
 summary(dados$sentiment.negative_count)
@@ -131,25 +125,25 @@ for(i in 1:nrow(dados)){
 
 for(i in 1:nrow(dados)){
 		 if ((dados$sentiment.positive_count[i]  == 0) ) {
-		dados$sentiment.positive_count[i] <- 'zero'
+		dados$sentiment.positive_count[i] <- 'p=zero'
 } else if ((dados$sentiment.positive_count[i]  == 1)) {
-		dados$sentiment.positive_count[i] <- 'low'
+		dados$sentiment.positive_count[i] <- 'p=low'
 } else if ((dados$sentiment.positive_count[i]  == 2) ) {
-		dados$sentiment.positive_count[i] <- 'medium' 
+		dados$sentiment.positive_count[i] <- 'p=medium' 
 } else
-		dados$sentiment.positive_count[i] <- 'high'  
+		dados$sentiment.positive_count[i] <- 'p=high'  
 
 }
 
 for(i in 1:nrow(dados)){
 		 if ((dados$sentiment.negative_count[i]  == 0) ) {
-		dados$sentiment.negative_count[i] <- 'zero'
+		dados$sentiment.negative_count[i] <- 'n=zero'
 } else if ((dados$sentiment.negative_count[i]  == 1)) {
-		dados$sentiment.negative_count[i] <- 'low'
+		dados$sentiment.negative_count[i] <- 'n=low'
 } else if ((dados$sentiment.negative_count[i]  == 2) ) {
-		dados$sentiment.negative_count[i] <- 'medium' 
+		dados$sentiment.negative_count[i] <- 'n=medium' 
 } else
-		dados$sentiment.negative_count[i] <- 'high'  
+		dados$sentiment.negative_count[i] <- 'n=high'  
 
 }
 
@@ -171,68 +165,10 @@ sentiment<-subset(dados, select= -sentiment.comparative)
 s2<-sentiment
 
 
-#Vou inserir essa atribuição aqui só para manter o resto do código..
-eq<-s2
-zeq<-s2
-
-
-#Não lembro pq eu gerei o csv em disco...
-write.csv(zeq, file ="zeqt.csv")
-write.csv(eq, file ="eqt.csv")
-
-
-tr2<-read.transactions('zeqt.csv',format="basket",sep=",")
-itemFrequencyPlot(tr2, support = 0.01)
-#rules <- apriori(tr2, parameter= list(supp=0.5, conf=0.5))
-rules <- apriori(tr2, parameter= list(supp=0.01, conf=0.5))
-rules <- sort(rules, decreasing=TRUE,by="lift")
-inspect(rules)
-summary(rules)
-
-
+# Geração de .csv para facilitar consultas futuras
 d2 <- dados
-
-for(i in 1:nrow(d2)){
-		 if ((d2$sentiment.positive_count[i]  == 0) ) {
-		d2$sentiment.positive_count[i] <- 'p=zero'
-} else if ((d2$sentiment.positive_count[i]  == 1)) {
-		d2$sentiment.positive_count[i] <- 'p=low'
-} else if ((d2$sentiment.positive_count[i]  == 2) ) {
-		d2$sentiment.positive_count[i] <- 'p=medium' 
-} else
-		d2$sentiment.positive_count[i] <- 'p=high'  
-
-}
-
-for(i in 1:nrow(d2)){
-		 if ((d2$sentiment.negative_count[i]  == 0) ) {
-		d2$sentiment.negative_count[i] <- 'n=zero'
-} else if ((d2$sentiment.negative_count[i]  == 1)) {
-		d2$sentiment.negative_count[i] <- 'n=low'
-} else if ((d2$sentiment.negative_count[i]  == 2) ) {
-		d2$sentiment.negative_count[i] <- 'n=medium' 
-} else
-		d2$sentiment.negative_count[i] <- 'n=high'  
-
-}
-
-for(i in 1:nrow(d2)){
-		 if ((d2$sentiment.score[i]  == 1) ) {
-		d2$sentiment.score[i] <- '1- low-neg'
-} else if ((d2$sentiment.score[i]  == 2)) {
-		d2$sentiment.score[i] <- '2- neg'
-} else if ((d2$sentiment.score[i]  == 3) ) {
-		d2$sentiment.score[i] <- '3- zero' 
-} else if ((d2$sentiment.score[i]  == 4) ) {
-		d2$sentiment.score[i] <- '4- pos' 
-} else
-		d2$sentiment.score[i] <- '5- high-pos'  
-
-}
-
-d2<-subset(d2, select= -sentiment.comparative)
-
 write.csv(d2, file ="d2.csv")
+
 tr5<-read.transactions('d2.csv',format="basket",sep=",")
 itemFrequencyPlot(tr5, support = 0.01)
 itemFrequencyPlot(tr5,support=.01, topN=20,type="absolute",col='green',ylim=c(0,70000), xlab='Proporção dos atributos'
@@ -244,7 +180,8 @@ table(sentiment$hour)
 #        23817          9655          3279          9652         14217          8415          4278 
 # 
 
-rules2 <- apriori(tr5, parameter= list(supp=0.015, conf=.5))
+# Geração de regras com Apriori
+rules2 <- apriori(tr5, parameter= list(supp=0.01, conf=.5))
 rules2 <- sort(rules2, decreasing=TRUE,by="lift")
 inspect(rules2)
 summary(rules)
