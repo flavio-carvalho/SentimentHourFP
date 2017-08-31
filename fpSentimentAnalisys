@@ -1,5 +1,19 @@
+#Função instalar pacotes
+InstalaPacotes = function(pck){
+  if (pck %in% rownames(installed.packages())){
+    mensagem <- paste("Pacote ", pck, " estava instalado")
+  }else{
+    mensagem <- paste("Instalando Pacote ", pck)
+    install.packages(pck,repos = "http://cran.us.r-project.org", dep=TRUE)  
+  }
+  return(mensagem)  
+}
+
+InstalaPacotes ("arules")
+InstalaPacotes ("arules")
+
 library(arules)
-library("arulesViz")
+library(arulesViz)
 
 diretorio <- function()
 { 
