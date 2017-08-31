@@ -193,6 +193,5 @@ itemFrequencyPlot(tr5,support=.01, topN=20,type="absolute",col='green',ylim=c(0,
 rules2 <- apriori(tr5, parameter= list(supp=0.01, conf=.5))
 rules2 <- sort(rules2, decreasing=TRUE,by="lift")
 inspect(rules2)
-summary(rules)
 plot(rules2,control=list(lift),shading=lift)
 
